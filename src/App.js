@@ -5,13 +5,13 @@ import './styles/app.scss';
 import data from './data';
 
 function App() {
-  const [songs, setSongs] = useState(data());
+  const [songs] = useState(data());
   const [currentSong, setCurrentSong] = useState(songs[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   return (
     <div className="App">
       <Song {...{ currentSong }} />
-      <Player {...{ currentSong, isPlaying, setIsPlaying }} />
+      <Player {...{ currentSong, isPlaying, setIsPlaying, setCurrentSong }} />
     </div>
   );
 }
