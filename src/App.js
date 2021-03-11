@@ -13,7 +13,7 @@ function App() {
     <div className="App">
       <Song {...{ currentSong }} />
       <Player {...{ currentSong, isPlaying, setIsPlaying, setCurrentSong }} />
-      <Library {...{ songs }} />
+      <Library {...{ songs, setCurrentSong }} />
     </div>
   );
 }
