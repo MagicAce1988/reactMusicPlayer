@@ -1,11 +1,11 @@
+import { useEffect, useRef, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faAngleLeft,
   faAngleRight,
   faPause,
   faPlay,
 } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useRef, useState } from 'react';
 
 const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
   // State
@@ -49,6 +49,14 @@ const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
     const seconds = `0${Math.floor(time % 60)}`.slice(-2);
     return `${minutes}:${seconds}`;
   };
+
+  // effects
+
+  useEffect(() => {
+    if (isPlaying) {
+      audioRef.current.play();
+    }
+  }, [isPlaying, currentSong]);
 
   return (
     <div className="player">
