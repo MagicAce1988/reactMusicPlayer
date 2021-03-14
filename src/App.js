@@ -4,16 +4,23 @@ import Song from './components/Song';
 import './styles/app.scss';
 import data from './data';
 import Library from './components/Library';
+import Nav from './components/Nav';
 
 function App() {
   const [songs] = useState(data());
   const [currentSong, setCurrentSong] = useState(songs[0]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [libraryStatus, setLibraryStatus] = useState(false);
+
   return (
-    <div className="App">
-      <Song {...{ currentSong }} />
-      <Player {...{ currentSong, isPlaying, setIsPlaying, setCurrentSong }} />
-      <Library {...{ songs, currentSong, setCurrentSong }} />
+    <div className={`App ${libraryStatus ? 'library-active' : ''}`}>
+      <Nav {...{ libraryStatus, setLibraryStatus }} />
+      <Song {...{ currentSong, isPlaying }} />
+      <Player
+        currentSongIndex={songs.findIndex((song) => song.id === currentSong.id)}
+        {...{ songs, currentSong, isPlaying, setIsPlaying, setCurrentSong }}
+      />
+      <Library {...{ songs, currentSong, setCurrentSong, libraryStatus }} />
     </div>
   );
 }

@@ -7,7 +7,14 @@ import {
   faPlay,
 } from '@fortawesome/free-solid-svg-icons';
 
-const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
+const Player = ({
+  songs,
+  currentSong,
+  currentSongIndex,
+  setCurrentSong,
+  isPlaying,
+  setIsPlaying,
+}) => {
   // State
 
   const [songInfo, setSongInfo] = useState({
@@ -19,12 +26,15 @@ const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
 
   const audioRef = useRef(null);
 
-  // Event Handlers
+  // Variables
 
-  const playSongHandler = () => {
-    setIsPlaying(!isPlaying);
-    audioRef.current[isPlaying ? 'pause' : 'play']();
+  const percentagePlayed = (songInfo.currentTime / songInfo.duration) * 100;
+
+  const transformStyle = {
+    transform: `translateX(${percentagePlayed}%)`,
   };
+
+  // Event Handlers
 
   const timeUpdateHandler = (e) => {
     const currentTime = e.target.currentTime;
@@ -42,6 +52,11 @@ const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
     setSongInfo({ ...songInfo, currentTime });
   };
 
+  const skipTrackHandler = (direction) => {
+    let newIndex = (currentSongIndex + direction + 1 || songs.length) - 1;
+    setCurrentSong(songs[newIndex % songs.length]);
+  };
+
   // utils
 
   const getTime = (time) => {
@@ -53,8 +68,9 @@ const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
   // effects
 
   useEffect(() => {
-    if (isPlaying) {
-      audioRef.current.play();
+    var playPromise = audioRef.current[isPlaying ? 'play' : 'pause']();
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {});
     }
   }, [isPlaying, currentSong]);
 
@@ -62,24 +78,38 @@ const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
     <div className="player">
       <div className="time-control">
         <p>{getTime(songInfo.currentTime)}</p>
-        <input
-          onChange={dragHandler}
-          min={0}
-          max={songInfo.duration}
-          value={songInfo.currentTime}
-          type="range"
-        />
+        <div
+          style={{
+            background: `linear-gradient(to right, ${currentSong.color[0]}, ${currentSong.color[1]})`,
+          }}
+          className="track"
+        >
+          <input
+            onChange={dragHandler}
+            min={0}
+            max={songInfo.duration}
+            value={songInfo.currentTime}
+            type="range"
+          />
+          <div className="animate-track" style={transformStyle}></div>
+        </div>
         <p>{getTime(songInfo.duration)}</p>
       </div>
       <div className="play-control">
-        <FontAwesomeIcon className="skip-back" size="2x" icon={faAngleLeft} />
         <FontAwesomeIcon
-          onClick={playSongHandler}
+          onClick={() => skipTrackHandler(-1)}
+          className="skip-back"
+          size="2x"
+          icon={faAngleLeft}
+        />
+        <FontAwesomeIcon
+          onClick={() => setIsPlaying(!isPlaying)}
           className="play"
           size="2x"
           icon={isPlaying ? faPause : faPlay}
         />
         <FontAwesomeIcon
+          onClick={() => skipTrackHandler(1)}
           className="skip-forward"
           size="2x"
           icon={faAngleRight}
@@ -87,6 +117,7 @@ const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
         <audio
           onTimeUpdate={timeUpdateHandler}
           onLoadedMetadata={metaDataHandler}
+          onEnded={() => skipTrackHandler(1)}
           ref={audioRef}
           src={currentSong.audio}
         ></audio>
