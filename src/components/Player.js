@@ -36,11 +36,6 @@ const Player = ({
 
   // Event Handlers
 
-  const playSongHandler = () => {
-    setIsPlaying(!isPlaying);
-    audioRef.current[isPlaying ? 'pause' : 'play']();
-  };
-
   const timeUpdateHandler = (e) => {
     const currentTime = e.target.currentTime;
     setSongInfo({ ...songInfo, currentTime });
@@ -73,14 +68,9 @@ const Player = ({
   // effects
 
   useEffect(() => {
-    if (isPlaying) {
-      var playPromise = audioRef.current.play();
-
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.log(error);
-        });
-      }
+    var playPromise = audioRef.current[isPlaying ? 'play' : 'pause']();
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {});
     }
   }, [isPlaying, currentSong]);
 
@@ -113,7 +103,7 @@ const Player = ({
           icon={faAngleLeft}
         />
         <FontAwesomeIcon
-          onClick={playSongHandler}
+          onClick={() => setIsPlaying(!isPlaying)}
           className="play"
           size="2x"
           icon={isPlaying ? faPause : faPlay}
@@ -127,6 +117,7 @@ const Player = ({
         <audio
           onTimeUpdate={timeUpdateHandler}
           onLoadedMetadata={metaDataHandler}
+          onEnded={() => skipTrackHandler(1)}
           ref={audioRef}
           src={currentSong.audio}
         ></audio>
